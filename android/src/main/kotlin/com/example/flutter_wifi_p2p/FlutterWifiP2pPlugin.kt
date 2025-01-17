@@ -2,7 +2,10 @@ package com.example.flutter_wifi_p2p
 import android.net.NetworkRequest
 import android.net.NetworkRequest.Builder
 import android.net.NetworkCapabilities
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -61,8 +64,23 @@ class FlutterWifiP2pPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 }
             }
              "startScan" -> {
-                startScan(58090,context) // Call the method to handle scan on the native side
-                result.success("Scan started") // Send a success message back to Flutter
+                // 在协程中执行网络操作，避免在主线程中进行
+             GlobalScope.launch(Dispatchers.IO) {
+              try {
+               val scanResult = startScan(58090, context) // 调用扫描方法
+                withContext(Dispatchers.Main) {
+                if (scanResult != null) {
+                    result.success(scanResult) // 返回扫描结果
+                } else {
+                    result.error("SCAN_ERROR", "Failed to start scan", null) // 错误返回
+                }
+            }
+               } catch (e: Exception) {
+                  withContext(Dispatchers.Main) {
+                        result.error("SCAN_ERROR", "Error during scan: ${e.message}", null) // 错误处理
+                 }
+              }
+             }
             }
             "disconnect" -> disconnect(result)
             "getConnectionInfo" -> getConnectionInfo(result)

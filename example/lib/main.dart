@@ -75,11 +75,8 @@ class _WifiP2pTestPageState extends State<WifiP2pTestPage> {
     });
 
     // Call the startScan method
-    String? result = await FlutterWifiP2p.startScan();
-
-    setState(() {
-      _status = result ?? "Scan failed";
-    });
+    final Map<String, dynamic>? result = await FlutterWifiP2p.startScan();
+    print(result);
   }
 
   @override

@@ -32,10 +32,17 @@ class FlutterWifiP2p {
   }
 
 // 新增方法来调用startScan
-  static Future<String?> startScan() async {
+  static Future<Map<String, dynamic>?> startScan() async {
     try {
-      final String? result = await _channel.invokeMethod('startScan');
-      return result;
+      final Map<dynamic, dynamic>? result =
+          await _channel.invokeMethod('startScan');
+
+      // 强制转换为 Map<String, dynamic>
+      if (result != null) {
+        return Map<String, dynamic>.from(
+            result); // 将返回的 Map 转换为 Map<String, dynamic>
+      }
+      return null;
     } on PlatformException catch (e) {
       print("Failed to start scan: ${e.message}");
       return null;
